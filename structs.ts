@@ -26,7 +26,7 @@ module structs {
         return 's' + what;
     }
 
-    class WeakMap<K, V> {
+   export class WeakMap<K, V> {
         private lengthDecrementCallbacks: Array<()=>void>;
         private lengthIncrementCallbacks: Array<()=>void>;
         protected data: {};
@@ -99,7 +99,7 @@ module structs {
         }
     }
 
-    class Map<K, V> extends WeakMap<K, V> {
+    export class Map<K, V> extends WeakMap<K, V> {
         private resetLengthCallbacks: Array<()=>void>;
 
         constructor(iterable?: [K, V][]) {
@@ -170,15 +170,15 @@ module structs {
         }
     }
 
-    class Set<T> {
-        private data: Map<T, T>;
+    class BaseSet<T, M extends WeakMap<any, any>> {
+        protected data: M;
         length: number;
         size: number;
 
-        constructor(values?: T[]){
+        constructor (values?: T[]) {
             this.size = 0;
             this.length = 0;
-            this.data = new Map<T, T>();
+            this.initData();
             this.data.onLengthDecrement(() => {
                 this.length--;
                 this.size--;
@@ -186,10 +186,6 @@ module structs {
             this.data.onLengthIncrement(() => {
                 this.length++;
                 this.size++;
-            });
-            this.data.onResetLength(() => {
-                this.length = 0;
-                this.size = 0;
             });
 
             if(values) {
@@ -199,17 +195,53 @@ module structs {
             }
         }
 
-        add (value: T): Set<T> {
+        protected initData (): void {}
+
+        add (value: T): BaseSet<T, M> {
             this.data.set(value, value);
+            return this;
+        }
+
+        delete (value: T): void {
+            this.data.delete(value);
+        }
+
+        has (value: T): boolean {
+            return this.data.has(value);
+        }
+    }
+
+    export class WeakSet<T> extends BaseSet<T, WeakMap<T, T>> {
+        protected initData (): void {
+            this.data = new WeakMap<T, T>();
+        }
+
+        add (value: T): WeakSet<T> {
+            super.add(value);
+            return this;
+        }
+    }
+
+    export class Set<T> extends BaseSet<T, Map<T,T>> {
+        constructor (values?: T[]) {
+            super(values);
+            this.data.onResetLength(() => {
+                this.length = 0;
+                this.size = 0;
+            });
+        }
+
+        protected initData (): void {
+            this.data = new Map<T, T>();
+        }
+
+        add (value: T): Set<T> {
+            super.add(value);
             return this;
         }
 
         clear (): void {
             this.data.clear();
-        }
-
-        delete (value: T): void {
-            this.data.delete(value);
         }
 
         entries (): [T, T][] {
@@ -224,10 +256,6 @@ module structs {
             });
         }
 
-        has (value: T): boolean {
-            return this.data.has(value);
-        }
-
         keys (): T[] {
             return this.data.keys();
         }
@@ -238,15 +266,15 @@ module structs {
     }
 
 
-    if(!window.WeakMap) {
-        window.WeakMap = WeakMap;
-    }
+    // if(!window.WeakMap) {
+    //     window.WeakMap = WeakMap;
+    // }
 
-    if(!window.Map) {
-        window.Map = Map;
-    }
+    // if(!window.Map) {
+    //     window.Map = Map;
+    // }
 
-    if(!window.Set) {
-        window.Set = Set;
-    }
+    // if(!window.Set) {
+    //     window.Set = Set;
+    // }
 }
