@@ -35,6 +35,7 @@ var structs;
     var WeakMap = (function () {
         function WeakMap(iterable) {
             this.data = {};
+            this.insertionCount = 0;
             this.length = 0;
             this.lengthDecrementCallbacks = [];
             this.lengthIncrementCallbacks = [];
@@ -46,7 +47,7 @@ var structs;
         }
         WeakMap.prototype.set = function (key, value) {
             var hadKey = this.has(key);
-            this.data[uid(key)] = this.setInternal(key, value);
+            this.data[uid(key)] = { entry: this.setInternal(key, value), order: this.insertionCount++ };
             if (!hadKey) {
                 this.incrementLength();
             }
@@ -54,15 +55,17 @@ var structs;
         };
         WeakMap.prototype.get = function (key) {
             if (this.has(key)) {
-                return this.data[uid(key)][1];
+                return this.data[uid(key)]['entry'][1];
             }
         };
         WeakMap.prototype.delete = function (key) {
-            var hadKey = this.has(key);
-            this.data[uid(key)] = undefined;
-            if (hadKey) {
+            var hasKey = this.has(key);
+            if (hasKey) {
+                this.data[uid(key)] = undefined;
                 this.decrementLength();
+                return true;
             }
+            return false;
         };
         WeakMap.prototype.has = function (key) {
             return !!this.data[uid(key)];
@@ -101,14 +104,28 @@ var structs;
         Map.prototype.setInternal = function (key, value) {
             return [key, value];
         };
-        Map.prototype.forEachEntry = function (callback) {
+        /**
+         * Returns array of data sorted by insertion order.
+         */
+        Map.prototype.listData = function () {
+            var result = [];
             for (var property in this.data) {
                 if (this.data.hasOwnProperty(property)) {
-                    var entry = this.data[property];
-                    if (entry) {
-                        callback(entry);
+                    var datum = this.data[property];
+                    if (datum) {
+                        result.push(datum);
                     }
                 }
+            }
+            return result.sort(function (a, b) { return a.order > b.order ? 1 : -1; });
+        };
+        /**
+         * Iterates through the entries by insertion order and calls callback.
+         */
+        Map.prototype.forEachEntry = function (callback) {
+            var entries = this.listData();
+            for (var i = 0; i < entries.length; i++) {
+                callback(entries[i]['entry']);
             }
         };
         Map.prototype.forEach = function (callback, thisArg) {
@@ -181,7 +198,7 @@ var structs;
             return this;
         };
         BaseSet.prototype.delete = function (value) {
-            this.data.delete(value);
+            return this.data.delete(value);
         };
         BaseSet.prototype.has = function (value) {
             return this.data.has(value);

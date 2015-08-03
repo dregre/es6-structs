@@ -26,14 +26,16 @@ module structs {
         return 's' + what;
     }
 
-   export class WeakMap<K, V> {
+    export class WeakMap<K, V> {
         private lengthDecrementCallbacks: Array<()=>void>;
         private lengthIncrementCallbacks: Array<()=>void>;
-        protected data: {};
+        protected data: { [key: string]: { 'entry': [K, V], 'order': number } };
+        private insertionCount: number;
         length: number;
 
         constructor(iterable?: [K, V][]) {
             this.data = {};
+            this.insertionCount = 0;
             this.length = 0;
             this.lengthDecrementCallbacks = [];
             this.lengthIncrementCallbacks = [];
@@ -47,7 +49,7 @@ module structs {
 
         set (key: K, value: V): WeakMap<K,V> {
             var hadKey = this.has(key);
-            this.data[uid(key)] = this.setInternal(key, value);
+            this.data[uid(key)] = { entry: this.setInternal(key, value), order: this.insertionCount++ };
             if(!hadKey) {
                 this.incrementLength();
             }
@@ -56,16 +58,18 @@ module structs {
 
         get (key: K): V {
             if(this.has(key)){
-                return this.data[uid(key)][1];
+                return this.data[uid(key)]['entry'][1];
             }
         }
 
-        delete (key: K): void {
-            var hadKey = this.has(key);
-            this.data[uid(key)] = undefined;
-            if(hadKey){
+        delete (key: K): boolean {
+            var hasKey = this.has(key);
+            if(hasKey){
+                this.data[uid(key)] = undefined;
                 this.decrementLength();
+                return true;
             }
+            return false;
         }
 
         has (key: K) {
@@ -111,14 +115,29 @@ module structs {
             return [key, value];
         }
 
-        private forEachEntry (callback: (entry: [K, V]) => void) {
-            for(var property in this.data) {
-                if(this.data.hasOwnProperty(property)){
-                    var entry = this.data[property];
-                    if(entry) {
-                        callback(entry);
+        /**
+         * Returns array of data sorted by insertion order.
+         */
+        private listData(): { 'entry': [K, V], 'order': number }[] {
+            var result = [];
+            for (var property in this.data) {
+                if (this.data.hasOwnProperty(property)) {
+                    var datum = this.data[property];
+                    if (datum) {
+                        result.push(datum);
                     }
                 }
+            }
+            return result.sort((a,b) => a.order > b.order ? 1 : -1);
+        }
+
+        /**
+         * Iterates through the entries by insertion order and calls callback.
+         */
+        private forEachEntry (callback: (entry: [K, V]) => void) {
+            var entries = this.listData();
+            for (var i = 0; i < entries.length; i++) {
+                callback(entries[i]['entry']);
             }
         }
 
@@ -202,8 +221,8 @@ module structs {
             return this;
         }
 
-        delete (value: T): void {
-            this.data.delete(value);
+        delete (value: T): boolean {
+            return this.data.delete(value);
         }
 
         has (value: T): boolean {
@@ -247,7 +266,6 @@ module structs {
         entries (): [T, T][] {
             return this.data.entries();
         }
-
 
         forEach (callback: (v?: T, k?: T, set?: Set<T>) => void, thisArg?: any){
             thisArg = thisArg || this;
