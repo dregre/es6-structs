@@ -26,10 +26,34 @@ module structs {
         return 's' + what;
     }
 
+    interface Datum<K, V> {
+        entry: [K, V];
+        order: number;
+    }
+
+    class Iterator<T, K, V> {
+        private count: number;
+        private getValue: (entry: [K, V]) => T;
+        private data: Datum<K, V>[];
+
+        constructor (data, getValue) {
+            this.count = 0;
+            this.data = data;
+            this.getValue = getValue;
+        }
+
+        next (arg: any) {
+            return {
+                done: this.count >= this.data.length,
+                value: this.data[this.count] && this.getValue(this.data[this.count++]['entry'])
+            }
+        }
+    }
+
     export class WeakMap<K, V> {
         private lengthDecrementCallbacks: Array<()=>void>;
         private lengthIncrementCallbacks: Array<()=>void>;
-        protected data: { [key: string]: { 'entry': [K, V], 'order': number } };
+        protected data: { [key: string]: Datum<K, V> };
         private insertionCount: number;
         length: number;
 
@@ -118,7 +142,7 @@ module structs {
         /**
          * Returns array of data sorted by insertion order.
          */
-        private listData(): { 'entry': [K, V], 'order': number }[] {
+        private listData(): Datum<K, V>[] {
             var result = [];
             for (var property in this.data) {
                 if (this.data.hasOwnProperty(property)) {
@@ -153,31 +177,19 @@ module structs {
             this.resetLength();
         }
 
-        entries (): [K, V][] {
-            var entries: [K,V][] = [];
-            this.forEachEntry((entry: [K, V]) => {
-                entries.push(entry);
-            });
-            return entries;
+        entries (): Iterator<[K, V], K, V> {
+            return new Iterator<[K, V], K, V>(this.listData(), entry => entry);
         }
 
-        keys (): K[] {
-            var keys: K[] = [];
-            this.forEachEntry((entry: [K, V]) => {
-                keys.push(entry[0]);
-            });
-            return keys;
+        keys (): Iterator<K, K, V> {
+            return new Iterator<K, K, V>(this.listData(), entry => entry[0]);
         }
 
-        values (): V[] {
-            var values: V[] = [];
-            this.forEachEntry((entry: [K, V]) => {
-                values.push(entry[1]);
-            });
-            return values;
+        values (): Iterator<V, K, V> {
+            return new Iterator<V, K, V>(this.listData(), entry => entry[1]);
         }
 
-        onResetLength (callback: () => void){
+        onResetLength (callback: () => void ){
             this.resetLengthCallbacks.push(callback);
         }
 
@@ -263,7 +275,7 @@ module structs {
             this.data.clear();
         }
 
-        entries (): [T, T][] {
+        entries (): Iterator<[T, T], T, T> {
             return this.data.entries();
         }
 
@@ -274,11 +286,11 @@ module structs {
             });
         }
 
-        keys (): T[] {
+        keys (): Iterator<T, T, T> {
             return this.data.keys();
         }
 
-        values (): T[] {
+        values (): Iterator<T, T, T> {
             return this.data.values();
         }
     }

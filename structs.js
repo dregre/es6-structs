@@ -32,6 +32,20 @@ var structs;
         }
         return 's' + what;
     }
+    var Iterator = (function () {
+        function Iterator(data, getValue) {
+            this.count = 0;
+            this.data = data;
+            this.getValue = getValue;
+        }
+        Iterator.prototype.next = function (arg) {
+            return {
+                done: this.count >= this.data.length,
+                value: this.data[this.count] && this.getValue(this.data[this.count++]['entry'])
+            };
+        };
+        return Iterator;
+    })();
     var WeakMap = (function () {
         function WeakMap(iterable) {
             this.data = {};
@@ -140,25 +154,13 @@ var structs;
             this.resetLength();
         };
         Map.prototype.entries = function () {
-            var entries = [];
-            this.forEachEntry(function (entry) {
-                entries.push(entry);
-            });
-            return entries;
+            return new Iterator(this.listData(), function (entry) { return entry; });
         };
         Map.prototype.keys = function () {
-            var keys = [];
-            this.forEachEntry(function (entry) {
-                keys.push(entry[0]);
-            });
-            return keys;
+            return new Iterator(this.listData(), function (entry) { return entry[0]; });
         };
         Map.prototype.values = function () {
-            var values = [];
-            this.forEachEntry(function (entry) {
-                values.push(entry[1]);
-            });
-            return values;
+            return new Iterator(this.listData(), function (entry) { return entry[1]; });
         };
         Map.prototype.onResetLength = function (callback) {
             this.resetLengthCallbacks.push(callback);
