@@ -1,10 +1,10 @@
-// (function(window){
-
 /*!
 * structs-polyfill: WeakMap, Map, WeakSet, and Set for older browsers.
 * Copyright 2015 Andre Gregori
 * Licensed under MIT (https://github.com/dregre/structs-polyfill/blob/master/license.txt)
 */
+// (function(window){
+
 var uidCount = 0;
 
 function uid(what: any): string{
@@ -38,38 +38,37 @@ interface Datum<K, V> {
 }
 
 class Iterator<T, K, V> {
-    private count: number;
-    private getValue: (entry: [K, V]) => T;
-    private data: Datum<K, V>[];
+    private _count: number;
+    private _getValue: (entry: [K, V]) => T;
+    private _data: Datum<K, V>[];
 
     constructor (data, getValue) {
-        this.count = 0;
-        this.data = data;
-        this.getValue = getValue;
+        this._count = 0;
+        this._data = data;
+        this._getValue = getValue;
     }
 
-    /** @exportSymbol */
-    next (arg: any) {
+    next () {
         return {
-            done: this.count >= this.data.length,
-            value: this.data[this.count] && this.getValue(this.data[this.count++]['entry'])
+            'done': this._count >= this._data.length,
+            'value': this._data[this._count] && this._getValue(this._data[this._count++].entry)
         }
     }
 }
 
 class BaseMap<K, V> {
-    private lengthDecrementCallbacks: Array<()=>void>;
-    private lengthIncrementCallbacks: Array<()=>void>;
-    protected data: { [key: string]: Datum<K, V> };
-    private insertionCount: number;
+    private _lengthDecrementCallbacks: Array<()=>void>;
+    private _lengthIncrementCallbacks: Array<()=>void>;
+    protected _data: { [key: string]: Datum<K, V> };
+    private _insertionCount: number;
     length: number;
 
     constructor(iterable?: [K, V][]) {
-        this.data = {};
-        this.insertionCount = 0;
+        this._data = {};
+        this._insertionCount = 0;
         this.length = 0;
-        this.lengthDecrementCallbacks = [];
-        this.lengthIncrementCallbacks = [];
+        this._lengthDecrementCallbacks = [];
+        this._lengthIncrementCallbacks = [];
 
         if(iterable) {
             for(var i = 0; i < iterable.length; i++) {
@@ -80,57 +79,57 @@ class BaseMap<K, V> {
 
     set (key: K, value: V): BaseMap<K,V> {
         var hadKey = this.has(key);
-        this.data[uid(key)] = { entry: this.setInternal(key, value), order: this.insertionCount++ };
+        this._data[uid(key)] = { entry: this._setInternal(key, value), order: this._insertionCount++ };
         if(!hadKey) {
-            this.incrementLength();
+            this._incrementLength();
         }
         return this;
     }
 
     get (key: K): V {
         if(this.has(key)){
-            return this.data[uid(key)]['entry'][1];
+            return this._data[uid(key)].entry[1];
         }
     }
 
     delete (key: K): boolean {
         var hasKey = this.has(key);
         if(hasKey){
-            this.data[uid(key)] = undefined;
-            this.decrementLength();
+            this._data[uid(key)] = undefined;
+            this._decrementLength();
             return true;
         }
         return false;
     }
 
     has (key: K) {
-        return !!this.data[uid(key)];
+        return !!this._data[uid(key)];
     }
 
-    private decrementLength(): void {
+    private _decrementLength(): void {
         this.length--;
-        for(var i = 0; i < this.lengthDecrementCallbacks.length; i++){
-            this.lengthDecrementCallbacks[i]();
+        for(var i = 0; i < this._lengthDecrementCallbacks.length; i++){
+            this._lengthDecrementCallbacks[i]();
         }
     }
 
-    private incrementLength(): void {
+    private _incrementLength(): void {
         this.length++;
-        for(var i = 0; i < this.lengthIncrementCallbacks.length; i++){
-            this.lengthIncrementCallbacks[i]();
+        for(var i = 0; i < this._lengthIncrementCallbacks.length; i++){
+            this._lengthIncrementCallbacks[i]();
         }
     }
 
-    protected setInternal (key: K, value: V): [K, V] {
+    protected _setInternal (key: K, value: V): [K, V] {
         return [,value];
     }
 
     onLengthDecrement (callback: () => void){
-        this.lengthDecrementCallbacks.push(callback);
+        this._lengthDecrementCallbacks.push(callback);
     }
 
     onLengthIncrement (callback: () => void){
-        this.lengthIncrementCallbacks.push(callback);
+        this._lengthIncrementCallbacks.push(callback);
     }
 }
 
@@ -145,25 +144,25 @@ class WeakMap<K extends Object, V> extends BaseMap<K, V> {
 }
 
 class Map<K, V> extends BaseMap<K, V> {
-    private resetLengthCallbacks: Array<()=>void>;
+    private _resetLengthCallbacks: Array<()=>void>;
 
     constructor(iterable?: [K, V][]) {
         super(iterable);
-        this.resetLengthCallbacks = [];
+        this._resetLengthCallbacks = [];
     };
 
-    protected setInternal (key: K, value: V): [K, V] {
+    protected _setInternal (key: K, value: V): [K, V] {
         return [key, value];
     }
 
     /**
      * Returns array of data sorted by insertion order.
      */
-    private listData(): Datum<K, V>[] {
+    private _listData(): Datum<K, V>[] {
         var result = [];
-        for (var property in this.data) {
-            if (this.data.hasOwnProperty(property)) {
-                var datum = this.data[property];
+        for (var property in this._data) {
+            if (this._data.hasOwnProperty(property)) {
+                var datum = this._data[property];
                 if (datum) {
                     result.push(datum);
                 }
@@ -175,63 +174,63 @@ class Map<K, V> extends BaseMap<K, V> {
     /**
      * Iterates through the entries by insertion order and calls callback.
      */
-    private forEachEntry (callback: (entry: [K, V]) => void) {
-        var entries = this.listData();
+    private _forEachEntry (callback: (entry: [K, V]) => void) {
+        var entries = this._listData();
         for (var i = 0; i < entries.length; i++) {
-            callback(entries[i]['entry']);
+            callback(entries[i].entry);
         }
     }
 
     forEach (callback: (v?: V, k?: K, map?: Map<K, V>) => void, thisArg?: any){
         thisArg = thisArg || this;
-        this.forEachEntry((entry: [K, V]) => {
+        this._forEachEntry((entry: [K, V]) => {
             callback.call(thisArg, entry[0], entry[1], this);
         });
     }
 
     clear (): void {
-        this.data = {};
-        this.resetLength();
+        this._data = {};
+        this._resetLength();
     }
 
     entries (): Iterator<[K, V], K, V> {
-        return new Iterator<[K, V], K, V>(this.listData(), entry => entry);
+        return new Iterator<[K, V], K, V>(this._listData(), entry => entry);
     }
 
     keys (): Iterator<K, K, V> {
-        return new Iterator<K, K, V>(this.listData(), entry => entry[0]);
+        return new Iterator<K, K, V>(this._listData(), entry => entry[0]);
     }
 
     values (): Iterator<V, K, V> {
-        return new Iterator<V, K, V>(this.listData(), entry => entry[1]);
+        return new Iterator<V, K, V>(this._listData(), entry => entry[1]);
     }
 
     onResetLength (callback: () => void ){
-        this.resetLengthCallbacks.push(callback);
+        this._resetLengthCallbacks.push(callback);
     }
 
-    private resetLength (): void {
+    private _resetLength (): void {
         this.length = 0;
-        for(var i = 0; i < this.resetLengthCallbacks.length; i++){
-            this.resetLengthCallbacks[i]();
+        for(var i = 0; i < this._resetLengthCallbacks.length; i++){
+            this._resetLengthCallbacks[i]();
         }
     }
 }
 
 class BaseSet<T, M extends WeakMap<any, any>> {
-    protected data: M;
+    protected _data: M;
     length: number;
     size: number;
 
     constructor (values?: T[]) {
         this.size = 0;
         this.length = 0;
-        this.data = this.initData();
-        this.data.onLengthDecrement(() => {
+        this._data = this._initData();
+        this._data.onLengthDecrement(() => {
             this.length--;
             this.size--;
         });
-        this.data.onLengthIncrement(() => {
+        this._data.onLengthIncrement(() => {
             this.length++;
             this.size++;
         });
@@ -243,26 +242,26 @@ class BaseSet<T, M extends WeakMap<any, any>> {
         }
     }
 
-    protected initData (): M {
+    protected _initData (): M {
         return;
     }
 
     add (value: T): BaseSet<T, M> {
-        this.data.set(value, value);
+        this._data.set(value, value);
         return this;
     }
 
     delete (value: T): boolean {
-        return this.data.delete(value);
+        return this._data.delete(value);
     }
 
     has (value: T): boolean {
-        return this.data.has(value);
+        return this._data.has(value);
     }
 }
 
 class WeakSet<T extends Object> extends BaseSet<T, WeakMap<T, T>> {
-    protected initData(): WeakMap<T, T> {
+    protected _initData(): WeakMap<T, T> {
         return new WeakMap<T, T>();
     }
 
@@ -270,7 +269,7 @@ class WeakSet<T extends Object> extends BaseSet<T, WeakMap<T, T>> {
         if(typeof value !== 'object') {
             throw TypeError('Invalid value used in weak set');
         }
-        this.data.set(value, undefined);
+        this._data.set(value, undefined);
         return this;
     }
 }
@@ -278,13 +277,13 @@ class WeakSet<T extends Object> extends BaseSet<T, WeakMap<T, T>> {
 class Set<T> extends BaseSet<T, Map<T,T>> {
     constructor (values?: T[]) {
         super(values);
-        this.data.onResetLength(() => {
+        this._data.onResetLength(() => {
             this.length = 0;
             this.size = 0;
         });
     }
 
-    protected initData (): Map<T, T> {
+    protected _initData (): Map<T, T> {
         return new Map<T, T>();
     }
 
@@ -294,26 +293,26 @@ class Set<T> extends BaseSet<T, Map<T,T>> {
     }
 
     clear (): void {
-        this.data.clear();
+        this._data.clear();
     }
 
     entries (): Iterator<[T, T], T, T> {
-        return this.data.entries();
+        return this._data.entries();
     }
 
     forEach (callback: (v?: T, k?: T, set?: Set<T>) => void, thisArg?: any){
         thisArg = thisArg || this;
-        this.data.forEach((v, k) => {
+        this._data.forEach((v, k) => {
             callback.call(thisArg, v, k, this);
         });
     }
 
     keys (): Iterator<T, T, T> {
-        return this.data.keys();
+        return this._data.keys();
     }
 
     values (): Iterator<T, T, T> {
-        return this.data.values();
+        return this._data.values();
     }
 }
 
@@ -329,4 +328,5 @@ class Set<T> extends BaseSet<T, Map<T,T>> {
 // if(!window.Set) {
 //     window.Set = Set;
 // }
+// 
 // })(this);

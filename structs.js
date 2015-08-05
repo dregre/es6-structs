@@ -1,15 +1,15 @@
-(function(window){
-var __extends = function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /*!
 * structs-polyfill: WeakMap, Map, WeakSet, and Set for older browsers.
 * Copyright 2015 Andre Gregori
 * Licensed under MIT (https://github.com/dregre/structs-polyfill/blob/master/license.txt)
 */
+(function(window){
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var uidCount = 0;
 function uid(what) {
     if (typeof what === 'object') {
@@ -38,26 +38,25 @@ function uid(what) {
 }
 var Iterator = (function () {
     function Iterator(data, getValue) {
-        this.count = 0;
-        this.data = data;
-        this.getValue = getValue;
+        this._count = 0;
+        this._data = data;
+        this._getValue = getValue;
     }
-    /** @exportSymbol */
-    Iterator.prototype.next = function (arg) {
+    Iterator.prototype.next = function () {
         return {
-            done: this.count >= this.data.length,
-            value: this.data[this.count] && this.getValue(this.data[this.count++]['entry'])
+            'done': this._count >= this._data.length,
+            'value': this._data[this._count] && this._getValue(this._data[this._count++].entry)
         };
     };
     return Iterator;
 })();
 var BaseMap = (function () {
     function BaseMap(iterable) {
-        this.data = {};
-        this.insertionCount = 0;
+        this._data = {};
+        this._insertionCount = 0;
         this.length = 0;
-        this.lengthDecrementCallbacks = [];
-        this.lengthIncrementCallbacks = [];
+        this._lengthDecrementCallbacks = [];
+        this._lengthIncrementCallbacks = [];
         if (iterable) {
             for (var i = 0; i < iterable.length; i++) {
                 this.set(iterable[i][0], iterable[i][1]);
@@ -66,49 +65,49 @@ var BaseMap = (function () {
     }
     BaseMap.prototype.set = function (key, value) {
         var hadKey = this.has(key);
-        this.data[uid(key)] = { entry: this.setInternal(key, value), order: this.insertionCount++ };
+        this._data[uid(key)] = { entry: this._setInternal(key, value), order: this._insertionCount++ };
         if (!hadKey) {
-            this.incrementLength();
+            this._incrementLength();
         }
         return this;
     };
     BaseMap.prototype.get = function (key) {
         if (this.has(key)) {
-            return this.data[uid(key)]['entry'][1];
+            return this._data[uid(key)].entry[1];
         }
     };
     BaseMap.prototype.delete = function (key) {
         var hasKey = this.has(key);
         if (hasKey) {
-            this.data[uid(key)] = undefined;
-            this.decrementLength();
+            this._data[uid(key)] = undefined;
+            this._decrementLength();
             return true;
         }
         return false;
     };
     BaseMap.prototype.has = function (key) {
-        return !!this.data[uid(key)];
+        return !!this._data[uid(key)];
     };
-    BaseMap.prototype.decrementLength = function () {
+    BaseMap.prototype._decrementLength = function () {
         this.length--;
-        for (var i = 0; i < this.lengthDecrementCallbacks.length; i++) {
-            this.lengthDecrementCallbacks[i]();
+        for (var i = 0; i < this._lengthDecrementCallbacks.length; i++) {
+            this._lengthDecrementCallbacks[i]();
         }
     };
-    BaseMap.prototype.incrementLength = function () {
+    BaseMap.prototype._incrementLength = function () {
         this.length++;
-        for (var i = 0; i < this.lengthIncrementCallbacks.length; i++) {
-            this.lengthIncrementCallbacks[i]();
+        for (var i = 0; i < this._lengthIncrementCallbacks.length; i++) {
+            this._lengthIncrementCallbacks[i]();
         }
     };
-    BaseMap.prototype.setInternal = function (key, value) {
+    BaseMap.prototype._setInternal = function (key, value) {
         return [, value];
     };
     BaseMap.prototype.onLengthDecrement = function (callback) {
-        this.lengthDecrementCallbacks.push(callback);
+        this._lengthDecrementCallbacks.push(callback);
     };
     BaseMap.prototype.onLengthIncrement = function (callback) {
-        this.lengthIncrementCallbacks.push(callback);
+        this._lengthIncrementCallbacks.push(callback);
     };
     return BaseMap;
 })();
@@ -130,20 +129,20 @@ var Map = (function (_super) {
     __extends(Map, _super);
     function Map(iterable) {
         _super.call(this, iterable);
-        this.resetLengthCallbacks = [];
+        this._resetLengthCallbacks = [];
     }
     ;
-    Map.prototype.setInternal = function (key, value) {
+    Map.prototype._setInternal = function (key, value) {
         return [key, value];
     };
     /**
      * Returns array of data sorted by insertion order.
      */
-    Map.prototype.listData = function () {
+    Map.prototype._listData = function () {
         var result = [];
-        for (var property in this.data) {
-            if (this.data.hasOwnProperty(property)) {
-                var datum = this.data[property];
+        for (var property in this._data) {
+            if (this._data.hasOwnProperty(property)) {
+                var datum = this._data[property];
                 if (datum) {
                     result.push(datum);
                 }
@@ -154,39 +153,39 @@ var Map = (function (_super) {
     /**
      * Iterates through the entries by insertion order and calls callback.
      */
-    Map.prototype.forEachEntry = function (callback) {
-        var entries = this.listData();
+    Map.prototype._forEachEntry = function (callback) {
+        var entries = this._listData();
         for (var i = 0; i < entries.length; i++) {
-            callback(entries[i]['entry']);
+            callback(entries[i].entry);
         }
     };
     Map.prototype.forEach = function (callback, thisArg) {
         var _this = this;
         thisArg = thisArg || this;
-        this.forEachEntry(function (entry) {
+        this._forEachEntry(function (entry) {
             callback.call(thisArg, entry[0], entry[1], _this);
         });
     };
     Map.prototype.clear = function () {
-        this.data = {};
-        this.resetLength();
+        this._data = {};
+        this._resetLength();
     };
     Map.prototype.entries = function () {
-        return new Iterator(this.listData(), function (entry) { return entry; });
+        return new Iterator(this._listData(), function (entry) { return entry; });
     };
     Map.prototype.keys = function () {
-        return new Iterator(this.listData(), function (entry) { return entry[0]; });
+        return new Iterator(this._listData(), function (entry) { return entry[0]; });
     };
     Map.prototype.values = function () {
-        return new Iterator(this.listData(), function (entry) { return entry[1]; });
+        return new Iterator(this._listData(), function (entry) { return entry[1]; });
     };
     Map.prototype.onResetLength = function (callback) {
-        this.resetLengthCallbacks.push(callback);
+        this._resetLengthCallbacks.push(callback);
     };
-    Map.prototype.resetLength = function () {
+    Map.prototype._resetLength = function () {
         this.length = 0;
-        for (var i = 0; i < this.resetLengthCallbacks.length; i++) {
-            this.resetLengthCallbacks[i]();
+        for (var i = 0; i < this._resetLengthCallbacks.length; i++) {
+            this._resetLengthCallbacks[i]();
         }
     };
     return Map;
@@ -196,12 +195,12 @@ var BaseSet = (function () {
         var _this = this;
         this.size = 0;
         this.length = 0;
-        this.data = this.initData();
-        this.data.onLengthDecrement(function () {
+        this._data = this._initData();
+        this._data.onLengthDecrement(function () {
             _this.length--;
             _this.size--;
         });
-        this.data.onLengthIncrement(function () {
+        this._data.onLengthIncrement(function () {
             _this.length++;
             _this.size++;
         });
@@ -211,18 +210,18 @@ var BaseSet = (function () {
             }
         }
     }
-    BaseSet.prototype.initData = function () {
+    BaseSet.prototype._initData = function () {
         return;
     };
     BaseSet.prototype.add = function (value) {
-        this.data.set(value, value);
+        this._data.set(value, value);
         return this;
     };
     BaseSet.prototype.delete = function (value) {
-        return this.data.delete(value);
+        return this._data.delete(value);
     };
     BaseSet.prototype.has = function (value) {
-        return this.data.has(value);
+        return this._data.has(value);
     };
     return BaseSet;
 })();
@@ -231,14 +230,14 @@ var WeakSet = (function (_super) {
     function WeakSet() {
         _super.apply(this, arguments);
     }
-    WeakSet.prototype.initData = function () {
+    WeakSet.prototype._initData = function () {
         return new WeakMap();
     };
     WeakSet.prototype.add = function (value) {
         if (typeof value !== 'object') {
             throw TypeError('Invalid value used in weak set');
         }
-        this.data.set(value, undefined);
+        this._data.set(value, undefined);
         return this;
     };
     return WeakSet;
@@ -248,12 +247,12 @@ var Set = (function (_super) {
     function Set(values) {
         var _this = this;
         _super.call(this, values);
-        this.data.onResetLength(function () {
+        this._data.onResetLength(function () {
             _this.length = 0;
             _this.size = 0;
         });
     }
-    Set.prototype.initData = function () {
+    Set.prototype._initData = function () {
         return new Map();
     };
     Set.prototype.add = function (value) {
@@ -261,27 +260,26 @@ var Set = (function (_super) {
         return this;
     };
     Set.prototype.clear = function () {
-        this.data.clear();
+        this._data.clear();
     };
     Set.prototype.entries = function () {
-        return this.data.entries();
+        return this._data.entries();
     };
     Set.prototype.forEach = function (callback, thisArg) {
         var _this = this;
         thisArg = thisArg || this;
-        this.data.forEach(function (v, k) {
+        this._data.forEach(function (v, k) {
             callback.call(thisArg, v, k, _this);
         });
     };
     Set.prototype.keys = function () {
-        return this.data.keys();
+        return this._data.keys();
     };
     Set.prototype.values = function () {
-        return this.data.values();
+        return this._data.values();
     };
     return Set;
 })(BaseSet);
-
 if(!window.WeakMap) {
     window.WeakMap = WeakMap;
 }
@@ -292,4 +290,4 @@ if(!window.Set) {
     window.Set = Set;
 }
 
-})(this);
+})(this); 
