@@ -1,7 +1,7 @@
 /*!
  * structs-polyfill: WeakMap, Map, WeakSet, and Set for older browsers.
  * Copyright 2015 Andre Gregori
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Licensed under MIT (https://github.com/dregre/structs-polyfill/blob/master/license.txt)
  */
 (function(window) {
     var __extends = function(d, b) {
