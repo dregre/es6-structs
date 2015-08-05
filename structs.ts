@@ -1,4 +1,9 @@
-module structs {
+/*!
+ * structs-polyfill: WeakMap, Map, WeakSet, and Set for older browsers.
+ * Copyright 2015 Andre Gregori
+ * Licensed under MIT (https://gith ub.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+module  structs {
     var uidCount = 0;
 
     function uid(what: any): string{
