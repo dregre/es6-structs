@@ -329,4 +329,8 @@ class Set<T> extends BaseSet<T, Map<T,T>> {
 //     window.Set = Set;
 // }
 // 
+// if(!window.WeakSet) {
+//     window.WeakSet = WeakSet;
+// }
+// 
 // })(this);

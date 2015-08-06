@@ -4,6 +4,7 @@
 * Licensed under MIT (https://github.com/dregre/structs-polyfill/blob/master/license.txt)
 */
 (function(window){
+    
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -280,6 +281,7 @@ var Set = (function (_super) {
     };
     return Set;
 })(BaseSet);
+
 if(!window.WeakMap) {
     window.WeakMap = WeakMap;
 }
@@ -288,6 +290,10 @@ if(!window.Map) {
 }
 if(!window.Set) {
     window.Set = Set;
+}
+
+if(!window.WeakSet) {
+    window.WeakSet = WeakSet;
 }
 
 })(this); 
