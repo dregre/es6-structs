@@ -1,4 +1,4 @@
-### Polyfill for WeakMap, Map, WeakSet, and Set
+# Polyfill for WeakMap, Map, WeakSet, and Set
 
 The EcmaScript 6 (Harmony) standard includes four new very useful data structures:  [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap), [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), [WeakSet](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet), and [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).  Some more recent browsers have this functionality already; but until all do, you can use this polyfill.
 
@@ -12,7 +12,7 @@ License: [MIT](https://tldrlegal.com/license/mit-license)
 
 The polyfill automatically attaches appropriate constructor functions to `window` if they are missing.  So you can just call, e.g., `new WeakMap()`.  As a true polyfill, I've attempted to replicate the exact API in the ES6. For usage, please reference the official literature ([WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap), [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), [WeakSet](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet), and [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)).
 
-__Notes:__
+### Notes
 
 (1) Lookup is O(1).
 
