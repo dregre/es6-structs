@@ -8,4 +8,4 @@ Lookup is O(1).
 
 License: [MIT](https://tldrlegal.com/license/mit-license)
 
-__Note:__ Objects are mutated when added to these data structures; a new property is added, `__structs_uid__`, constituting a unique id.  On browsers supporting `Object.defineProperty`, the property is added such that it is non-enumerable -- that is, such that it doesn't occur in a `for ... in` loop.  However, where this is not supported (such as <IE8), the property is enumerable.
+__Note:__ Objects are mutated when added to these data structures; a new property is added, `__structs_uid__`, constituting a unique id.  On browsers supporting `Object.defineProperty()`, the property is added such that it is non-enumerable -- that is, such that it doesn't occur in a `for ... in` loop.  However, where this is not supported (such as <IE8), the property is enumerable.
