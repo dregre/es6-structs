@@ -12,7 +12,7 @@ License: [MIT](https://tldrlegal.com/license/mit-license)
 
 In the browser, the polyfill automatically attaches appropriate constructor functions to `window` if they are missing.  So you can just call, e.g., `new WeakMap()`.  As a true polyfill, I've attempted to replicate the exact API in the ES6. For usage, please reference the official literature ([WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap), [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), [WeakSet](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet), and [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)).
 
-In Node, install through npm:
+For use in Node, install through npm:
 
 ```
 > npm install es6-structs
