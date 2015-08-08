@@ -6,6 +6,6 @@
     "main": "structs.js",
     "repository": {
         "type": "git",
-        "url": "git://github.com/dregre/"
+        "url": "git://github.com/dregre/es6-structs"
     }
 }
