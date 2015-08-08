@@ -1,11 +1,11 @@
 {
-    "name": "es6-structs",
-    "version": "1.0.0",
-    "description": "Polyfill for ES6 (Harmony) Map, WeakMap, Set, and WeakSet.",
-    "license": "MIT",
-    "main": "structs.js",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/dregre/es6-structs"
-    }
+  "name": "es6-structs",
+  "version": "1.0.1",
+  "description": "Polyfill for ES6 (Harmony) Map, WeakMap, Set, and WeakSet.",
+  "license": "MIT",
+  "main": "structs.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dregre/es6-structs"
+  }
 }
