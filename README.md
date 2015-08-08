@@ -22,8 +22,8 @@ Then in your JS:
 
 ```
 var structs = require('es6-structs');
-var mp = new structs.Set();
-var st = new structs.Map();
+var st = new structs.Set();
+var mp = new structs.Map();
 var wm = new structs.WeakMap();
 var ws = new structs.WeakSet();
 ```
