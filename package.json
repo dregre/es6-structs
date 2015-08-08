@@ -1,5 +1,5 @@
 {
-	"name": "es6-structs-polyfill",
-	"version": "1.0.0",
-	"description": "Polyfill for ES6 (Harmony) Map, WeakMap, Set, and WeakSet."
+  "name": "es6-structs-polyfill",
+  "version": "1.0.1",
+  "description": "Polyfill for ES6 (Harmony) Map, WeakMap, Set, and WeakSet."
 }
