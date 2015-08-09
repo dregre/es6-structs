@@ -1,6 +1,6 @@
 {
   "name": "es6-structs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Polyfill for ES6 (Harmony) Map, WeakMap, Set, and WeakSet.",
   "license": "MIT",
   "main": "structs.js",
