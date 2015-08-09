@@ -15,7 +15,7 @@ In the browser, the polyfill automatically attaches appropriate constructor func
 For Node, install through npm:
 
 ```
-> npm install es6-structs
+$ npm install es6-structs
 ```
 
 Then in your JS:
@@ -35,7 +35,7 @@ Please reference the official literature:
 * [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap)
 * [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
 * [WeakSet](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet)
-* [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)).
+* [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)
 
 ### Notes
 
