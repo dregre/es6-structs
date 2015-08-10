@@ -42,3 +42,7 @@ Please reference the official literature:
 (1) Lookup is O(1).
 
 (2) Objects are mutated when added to the data structures; a new property is added, `__structs_uid__`, constituting a unique id.  On browsers supporting `Object.defineProperty()`, the property is added such that it is non-enumerable -- that is, such that it doesn't occur in a `for ... in` loop.  However, where this is not supported (such as <IE8), the property is enumerable.
+
+(3) The WeakMap here is leaky in that it has "weak" references to keys but retains values.  This means that keys will be GC'ed while values will not.  This differs from the ES6 specification in that WeakMap entries are supposed to be deleted whenever keys are GC'ed.
+
+(4) The WeakSet here does not retain its values.  However, it is unaware of whether a value was GC'ed or not.
