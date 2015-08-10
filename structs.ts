@@ -184,7 +184,7 @@ class Map<K, V> extends BaseMap<K, V> {
     forEach (callback: (v?: V, k?: K, map?: Map<K, V>) => void, thisArg?: any){
         thisArg = thisArg || this;
         this._forEachEntry((entry: [K, V]) => {
-            callback.call(thisArg, entry[0], entry[1], this);
+            callback.call(thisArg, entry[1], entry[0], this);
         });
     }
 
@@ -320,17 +320,13 @@ class Set<T> extends BaseSet<T, Map<T,T>> {
 // if(!window.WeakMap) {
 //     window.WeakMap = WeakMap;
 // }
-
 // if(!window.Map) {
 //     window.Map = Map;
 // }
-
 // if(!window.Set) {
 //     window.Set = Set;
 // }
-// 
 // if(!window.WeakSet) {
 //     window.WeakSet = WeakSet;
 // }
-// 
 // })(this);
