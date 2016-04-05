@@ -8,8 +8,8 @@
 var uidCount = 0;
 
 function uid(what: any): string{
-    if(typeof what === 'object') {
-        if(typeof what.__structs_uid__ !== 'string'){
+    if(!!what && typeof what === 'object') {
+        if (typeof what['__structs_uid__'] !== 'string'){
             var uid = 'o' + uidCount++;
             try {
                 Object.defineProperty(what, '__structs_uid__', {

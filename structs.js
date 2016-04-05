@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var uidCount = 0;
 function uid(what) {
-    if (typeof what === 'object') {
+    if (!!what && typeof what === 'object') {
         if (typeof what.__structs_uid__ !== 'string') {
             var uid = 'o' + uidCount++;
             try {
